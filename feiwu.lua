@@ -8,7 +8,7 @@ local Start = Instance.new("TextButton")
 ScreenGui.Parent = game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-UI.Name = "这里是卡密系统的名字"
+UI.Name = "飞舞卡密系统"
 UI.Parent = ScreenGui
 UI.Active = true
 UI.BackgroundColor3 = Color3.new(0, 0, 0)
