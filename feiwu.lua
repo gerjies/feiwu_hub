@@ -1,5 +1,10 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local infJumpConnection
+local infJumpDebounce = false
+
 -- 创建主窗口
 local Window = Rayfield:CreateWindow({
     Name = "飞舞hub",
@@ -22,10 +27,26 @@ local ToggleExample = Tab1:CreateToggle({
     Flag = "ToggleExample",
     Callback = function(Value)
         if Value then
-            -- Note: infinite jump logic needs valid undefined variables (addcmd, UserInputService, speaker)
-            print("Infinite Jump Toggled: ", Value)
+            -- 开启无线跳跃
+            if infJumpConnection then infJumpConnection:Disconnect() end
+            infJumpDebounce = false
+            infJumpConnection = UserInputService.JumpRequest:Connect(function()
+                if not infJumpDebounce then
+                    infJumpDebounce = true
+                    if Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid") then
+                        Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+                    end
+                    task.wait()
+                    infJumpDebounce = false
+                end
+            end)
         else
-            print("Infinite Jump Toggled: ", Value)
+            -- 关闭无线跳跃
+            if infJumpConnection then 
+                infJumpConnection:Disconnect() 
+                infJumpConnection = nil
+            end
+            infJumpDebounce = false
         end
     end,
 
