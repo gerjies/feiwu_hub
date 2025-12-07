@@ -8,9 +8,7 @@ local playerGui = player.PlayerGui
 -- ======================== 配置区域 ========================
 local CONFIG = {
     -- 默认有效卡密列表（如远程获取失败时使用）
-    VALID_KEYS = {
-		
-    },
+    VALID_KEYS = {},
     -- 最大验证尝试次数
     MAX_ATTEMPTS = 3,
     -- 授权信息本地存储路径
@@ -45,7 +43,6 @@ local function LoadAuthStatus()
         local content = readfile(CONFIG.SAVE_PATH)
         return HttpService:JSONDecode(content)
     end)
-
     if success and data then
         return data.Authorized and data.ExpireTime > os.time() and data.PlayerName == player.Name
     end
@@ -171,7 +168,6 @@ local function FetchValidKeys()
     local success, response = pcall(function()
         return HttpService:GetAsync(CONFIG.VALID_KEYS_URL)
     end)
-
     if success then
         local keysData = HttpService:JSONDecode(response)
         return keysData.validKeys or {}
