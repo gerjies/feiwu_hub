@@ -21,7 +21,7 @@ local CONFIG = {
     -- 远程获取有效卡密的URL
     VALID_KEYS_URL = "http://server.enet.online:23524/get_valid_keys", -- 请替换为您的实际URL
     -- 验证成功后执行的脚本
-    TARGET_SCRIPT_URL = "https://raw.githubusercontent.com/tfcygvunbind/Apple/main/%E9%BB%91%E7%99%BD%E8%84%9A%E6%9C%AC%E6%9C%80%E6%96%B0",
+    TARGET_SCRIPT_URL = "https://raw.githubusercontent.com/gerjies/feiwu_hub/refs/heads/main/feiwu.lua",
     -- 管理员用户名
     ADMIN_USER = "gdhdfghffgh7"
 }
