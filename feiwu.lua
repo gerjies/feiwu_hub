@@ -21,9 +21,13 @@ local ToggleExample = Tab1:CreateToggle({
     CurrentValue = false,
     Flag = "ToggleExample",
     Callback = function(Value)
-        print("切换开关状态:", Value)
-    end
-})
+        if Value then
+            -- Note: infinite jump logic needs valid undefined variables (addcmd, UserInputService, speaker)
+            print("Infinite Jump Toggled: ", Value)
+        else
+            print("Infinite Jump Toggled: ", Value)
+        end
+    end,
 
 -- 2. 下拉菜单(Dropdown)示例
 local DropdownExample = Tab1:CreateDropdown({
