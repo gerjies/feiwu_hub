@@ -49,6 +49,7 @@ local ToggleExample = Tab1:CreateToggle({
             infJumpDebounce = false
         end
     end,
+})
 
 -- 2. 下拉菜单(Dropdown)示例
 local DropdownExample = Tab1:CreateDropdown({
