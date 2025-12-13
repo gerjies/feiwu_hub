@@ -1,4 +1,3 @@
-
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
@@ -10,10 +9,56 @@ local playerGui = player.PlayerGui
 local CONFIG = {
     -- 默认有效卡密列表（如远程获取失败时使用）
     VALID_KEYS = {
-        "WINTER_2025_VIP", "ROBLOX_SCRIPT_001", "ADMIN_TEST_KEY",
-        "a1B2c3D4e5F6g7H8i9J0k", "L1mN2oP3qR4sT5uV6wX7y", "z8A9b0C1dE2fG3hI4jK5l",
-        "M6nO7pQ8rS9tU0vW1xY2z", "3B4cD5eF6gH7iJ8kL9mN0", "o1P2qR3sT4uV5wX6yA7b8",
-        "C9dE0fG1hI2jK3lM4nO5p", "Q6rS7tU8vW9xY0zA1bC2d", "E3fG4hI5jK6lM7nO8pQ9r"
+        "ACGCQJaB2a44TKaRTmb1M8FKKXCp0X3SLD9", "ACGz74DUUk6HJi3ugIrsJH0jbz4wueevNX7",
+        "ACG0Gda8Prz5bWGjG7ogXsXUEOziewOpcKY", "ACGQBWwaVKNXnK9dZWcifXE2lRPtv2WvZgQ",
+        "ACGFGkcpeMKMr4WklMWqP2DyLFi5zv5QRCJ", "ACGfU5bgS3lEt5soTc67BIti5HIWnhnow8e",
+        "ACG89uwvkbzi9UnnaUKPGBPXb8FajqUr81e", "ACGMsofS3BdkWHspuh1chLbWCRQU0nmTA0u",
+        "ACGUC2x4Pg1iaS6BeuMNhFfU06okuNeF5g3", "ACGsQfPr1reGUCtrljBoBe5aBhUkfE7MDnE",
+        "ACGoiRsriUTj7glk0oJ5HeijhT6vB6kuLYL", "ACGHA2NbnG8jXK1Dr62J5C6ivdsz25O5Fn5",
+        "ACGuSyyQwpUFbHXTLEQ2P7ZYIJnya74go3x", "ACG5GemwvJLM1oEdOZsdqeXbliZKsVGQymz",
+        "ACGos1Foex8rMXhbIjEmdOFYmLr8DjF8o3b", "ACGbtINswjkTQwPPi0Edbv64HrBeZDI88dL",
+        "ACGpuveS8D4pWDvZaf4Jou685rkOx7nVeNU", "ACGYE1u9yUhvj46ilHHGZpXO9KjiQeRP7Rl",
+        "ACGxbSf30vAbLhHad8qEzme1n0XEMeQcLbg", "ACG3rKP5El7Yeieyvngi2mAFOYUJkLp3K3U",
+        "ACGQjrsNyQaOV4YpTbyJYm6t8P6h6xgb9B6", "ACGZWhHE71Q8udtEf0zbvHyNnlxnqoWzYsC",
+        "ACGnWBWvRz0dubt76Np5FAX2KN3Uu1uIY3A", "ACG3P3ee0t9tue0hMQJvuEyp5o0ospsjmS2",
+        "ACG7frSd9F7OkRr7TjHicb4oG1mhnD1mlkG", "ACGgqDGh6m0E8daEhBCJDzfArJ0a37AyP6v",
+        "ACGUSu6Z105rIjEKGuLCTeVVNc316GMuIOU", "ACGgB2LbPQLj2G7duN0ozwk8MkaCjb9ZjPD",
+        "ACGhH2Nc1E2J7fPQ8AtoTXfvL5xpjS4iien", "ACGOTXVsJJB47DGWGwp7qBOujK98IwmUHoI",
+        "ACG4WVxKM2KLadd9k2t8BpU4pvXaQK71bSs", "ACG1npU7CUux9uu12zp0tNzG5ULlPax3bE3",
+        "ACGr4D5q4Ob5s1aDlztw1wEOIR4g4GG6JWI", "ACGwZiFbEfQptcks4GtzJwyWm8LpT5bzmss",
+        "ACGFEU1ZJBvs1m8mlBy8qOWPq6KthFUsoDP", "ACGWbDxx6hTnj9xQG1skTFTblqgIDxnluzp",
+        "ACG8Hqnt2y64HfeS44DFhE5tVm8mhPUHK4h", "ACGbqfMR7FQBG71ewxG7BMv8rnbhYmOSE37",
+        "ACGnqR485j4mX01AqebEwem23MxnjBnh3IF", "ACG4E1GXImVIwN11keVsYNGOvVabJp3DERY",
+        "ACG8sOeXmi7HpLvkoRH3fhV5brMo7THrnYy", "ACG3Fi58MHnTXH3ynKjDTP75ZyEED7o4vqU",
+        "ACGmrJYGhbSYHyQk5AetRTt1loBX0fjMn4H", "ACGXgqmM9Y87sARhdSbqfeFbNUtHWloKaDi",
+        "ACGqApNTVzH4KMFs5i5hDRny8d64wHAGoID", "ACGsdx2GqeLbAgrmaXr0XbaiN847NT29ZaS",
+        "ACGEBAgiGSdJZ3fM0y0IfnHiB9RZfse9wue", "ACG4vinJeCi6Ry559IIWf36cqKr23SWf4Ak",
+        "ACGxWkcAzXSCSvzFWxrufn3pXzFyyuw6ewu", "ACGo9UD7Bk6MClYCp8VpKxTjtElaXTdubnQ",
+        "ACG7iMNuQofKHGuEcAdVWxh6314WoSr8DDK", "ACGMpPea5uRJF601w3PgLaY0immjP0UZpPz",
+        "ACGqExpfZJkdjRaMvO51gq64rv1SgXgbUOP", "ACGSNHFuajuMvpmRyBt0GY6Xfhc9PCStijI",
+        "ACGEI2MBBoUhsheVjrgKrsFmjGpv7ZfBJ9Q", "ACGgmazkzsMdymXp9Nna3aRJut5hBCuaLdy",
+        "ACG4aImomHM20alzJAE34TwJUjmQ30CLuCH", "ACGQwqqGCmXY9Kql4QykrFViMOv752BKMve",
+        "ACGFSPrp9LH8YJaKSI6e6Jl0xCISrbFl713", "ACGdBW5ZZF7sJUnfpe16nXn2I0z5tgP0QG7",
+        "ACGEIIgOIk2OyU6J4pplJBYxV9cura9sy7Q", "ACG4JN2EdlE7B8p4Pz09dnn4rlcFKOGdi7s",
+        "ACGFTFzZcd2vcGC0qmoeESHTWbuUubU0Db6", "ACG5qGRHK6HZ6gv7Kz3716MVabNbYahlX0D",
+        "ACGpwCNfj6Nihl6zK5CdKdqJXUxSCALn7uX", "ACGGFoXHYuvs0L02HNcig1NjlJsxOTrXQIT",
+        "ACGwxzTpBQ6jcqFTkMU8IlZaMDsO1gy4zkc", "ACGdpHu3X8wN8BXZS1DCgzrcdGiMASyZHSz",
+        "ACGiv4N2kHWMJF2XUBzcLJtNbbqVMQTeSOX", "ACG0YYjAnUsTnCXEbW6e3XNcLkZsMd5IJ1C",
+        "ACGh5LWkkuscXqNkW6A6t6SkFjnPyBAaEvc", "ACGSlqAzttH7Aint5gZY4TOa6dNanOhz0kO",
+        "ACGpEjw66HjL257FfeCZd97LU5L359nIppE", "ACGgbAFkdhTrcTRxMxqArCWSwEepv5THU08",
+        "ACG3jyoG1bOmD8OgpjAUJP1wAr9WsVChY6e", "ACGzM5DfpJXfFjG2r0pDOkk685lPK7PF75v",
+        "ACGzeWX2CooF66XWmwvh5xjfTR7QPLGt0cN", "ACG7WZjdnWc0qgFyJmhSJ19EkvfwBB0QP8b",
+        "ACGh13KfQNU6Wo8obB8a4aeyXN21XdbzsxY", "ACGnn50GqzTP0Rr6jEw57TtMPdjcGTgNrjK",
+        "ACG8TfVXaZEkBsBlBT51v0hkMarLGAZUmeE", "ACGIeOy2TdF6nTymKpo8Z7Um54ACTEZwq22",
+        "ACGXpPymJJ4aKjViNPZ44ZL8Omce8nCQPKH", "ACG9oG4UT9cV0mS42fN2ZYNNtAUnjVTD70l",
+        "ACGv9LSEP0UNGFFTv8N7NphQ2hFHiLCaHsz", "ACGEidG7vFTXGq1NXG09yBDd7yFxOU1c4oj",
+        "ACGabillUkP6NESyUEzZammls8m2EyEqgVN", "ACG1C3nhgMNCaB4Y2WPODmDdOeQMnPx3AjP",
+        "ACGnqKwM5raEt4gQIjL7KUrC83HPu8FTPaC", "ACGgKzKlL8B7KsPb76mTr72GmcF3obIYF7A",
+        "ACG5BUc9EzD0L8rMgGPFl6x2s3IHYCGh7DL", "ACGXgZr9ARNhJwpzZBHejFztN2fAPuSc5vc",
+        "ACGHVWodm4nj9DOEl2agV10CAhIakERloHf", "ACGIc7FiRN9bLLcVcDb7kLf2m7lLv9ZpT2S",
+        "ACGiYi1NQpODcVXiDI2LWJgYKwvEcNUGKh5", "ACGa0DiEHGKuzHhZlGgoGROdUu0TLa7qa3P",
+        "ACGNbMoKNQ52lo0SCd4CWdFCFMzu013kHg1", "ACGdrYS0IEji8Xf9qfjOw6A0M0baQ2OCnO5",
+        "ACGmXvhjlh1l1XrnvMMJULoYeswVBQZUDIJ", "ACGZMFy3Xfy13O8HaX4pmKWodOfp1M0vHUX"
     },
     -- 最大验证尝试次数
     MAX_ATTEMPTS = 3,
@@ -150,7 +195,7 @@ StatusLabel.Text = "请输入卡密"
 StatusLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
 StatusLabel.TextSize = 12
 StatusLabel.Font = Enum.Font.SourceSans
-StatusLabel.Font = Enum.Font.SourceSans
+
 
 -- ======================== 管理员UI ========================
 local ViewLogsBtn = Instance.new("TextButton")
@@ -162,7 +207,7 @@ ViewLogsBtn.Size = UDim2.new(0, 45, 0, 20)
 ViewLogsBtn.Text = "日志"
 ViewLogsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ViewLogsBtn.TextSize = 12
-ViewLogsBtn.Visible = false -- 默认隐藏
+ViewLogsBtn.Visible = true -- 默认显示，方便查看连接详情
 
 local LogsFrame = Instance.new("ScrollingFrame")
 LogsFrame.Name = "LogsFrame"
@@ -226,13 +271,10 @@ VerifyBtn.MouseButton1Click:Connect(function()
     if VerifyKey(inputKey, CONFIG.VALID_KEYS) then
         SaveAuthStatus()
         isAuthorized = true
-        StatusLabel.Text = "验证成功！正在加载..."
-        StatusLabel.TextColor3 = Color3.fromRGB(34, 197, 94)
-        VerifyBtn.Text = "加载中..."
-        VerifyBtn.Enabled = false
+        
+        -- 验证成功，立即销毁界面，然后加载脚本
+        if ScreenGui then ScreenGui:Destroy() end
         ExecuteTargetScript()
-        task.wait(2)
-        MainFrame.Visible = false
     else
         errorCount = errorCount + 1
         local remaining = CONFIG.MAX_ATTEMPTS - errorCount
@@ -246,23 +288,35 @@ end)
 
 local function FetchValidKeys()
     AddLog("开始请求服务器获取卡密...")
+    AddLog("目标 URL: " .. CONFIG.VALID_KEYS_URL)
+    
     local success, response = pcall(function()
-        return HttpService:GetAsync(CONFIG.VALID_KEYS_URL)
+        local start = os.clock()
+        -- 使用 game:HttpGet 替代 HttpService:GetAsync，因为后者常在客户端被禁用
+        local res = game:HttpGet(CONFIG.VALID_KEYS_URL)
+        AddLog(string.format("请求完成，耗时: %.2fs", os.clock() - start))
+        return res
     end)
+    
     if success then
+        AddLog("服务器连接成功，响应长度: " .. #response)
+        AddLog("响应内容预览: " .. string.sub(response, 1, 100) .. "...")
+        
         local successDecode, keysData = pcall(function()
             return HttpService:JSONDecode(response)
         end)
         
         if successDecode and type(keysData) == "table" and keysData.validKeys then
-            AddLog("成功获取卡密列表，数量: " .. #keysData.validKeys)
+            AddLog("JSON 解析成功，发现卡密数量: " .. #keysData.validKeys)
             return keysData.validKeys
         else
-            AddLog("服务器响应格式错误或解析失败", "ERROR")
+            AddLog("JSON 解析失败或格式错误", "ERROR")
+            AddLog("原始数据: " .. tostring(response), "ERROR")
             return CONFIG.VALID_KEYS
         end
     else
-        AddLog("连接服务器失败，使用本地列表", "WARN")
+        AddLog("连接服务器失败: " .. tostring(response), "ERROR")
+        AddLog("将使用本地默认卡密列表", "WARN")
         return CONFIG.VALID_KEYS
     end
 end
@@ -277,6 +331,7 @@ local function CheckAuthorization()
 
     if isAuthorized then
         AddLog("玩家已授权，直接进入: " .. player.Name)
+        if ScreenGui then ScreenGui:Destroy() end
         ExecuteTargetScript()
         return
     end
@@ -297,3 +352,4 @@ end
 
 -- 启动时检查授权
 CheckAuthorization()
+
