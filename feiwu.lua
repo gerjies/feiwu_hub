@@ -78,34 +78,36 @@ local Aimbot_Enabled = false
 local Aimbot_WallCheck = false
 local Aimbot_FOVSquare = false
 local Aimbot_FOV_Size = 100
-local Aimbot_Smoothness = 1 -- 0.1 ~ 1.0
+local Aimbot_Smoothness = 1
+local Aimbot_MaxDistance = 500
 local Hitbox_Enabled = false
 local OriginalSizes = {}
+local Flight_Enabled = false
+local Flight_Speed = 50
 
 -- ======================== 视觉/ESP (Visuals) ========================
 local ESP_Holder = Instance.new("Folder", game.CoreGui)
 ESP_Holder.Name = "ESPHolder_Feiwu"
 table.insert(Instances, ESP_Holder)
+local ESP_NPC_Enabled = false
 
 -- 创建 ESP 资源的函数
-local function CreateESPAssets(player)
-    if not player.Character then return end
-    local char = player.Character
+local function CreateESPAssets(model, name)
+    if not model then return end
     
     -- 1. Highlight
-    if not char:FindFirstChild("FeiwuHighlight") then
+    if not model:FindFirstChild("FeiwuHighlight") then
         local highlight = Instance.new("Highlight")
         highlight.Name = "FeiwuHighlight"
-        highlight.Adornee = char
+        highlight.Adornee = model
         highlight.FillColor = Color3.fromRGB(255, 0, 0)
         highlight.FillTransparency = 0.5
         highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
         highlight.OutlineTransparency = 0
-        highlight.Parent = char
+        highlight.Parent = model
     end
     
-    -- 2. Name Tag
-    local head = char:FindFirstChild("Head")
+    local head = model:FindFirstChild("Head")
     if head and not head:FindFirstChild("FeiwuNameTag") then
         local bg = Instance.new("BillboardGui")
         bg.Name = "FeiwuNameTag"
@@ -114,25 +116,21 @@ local function CreateESPAssets(player)
         bg.StudsOffset = Vector3.new(0, 2, 0)
         bg.AlwaysOnTop = true
         bg.Parent = head
-        
         local nameLabel = Instance.new("TextLabel", bg)
         nameLabel.Size = UDim2.new(1, 0, 1, 0)
         nameLabel.BackgroundTransparency = 1
         nameLabel.TextStrokeTransparency = 0
         nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         nameLabel.TextSize = 14
-        nameLabel.Text = player.Name
+        nameLabel.Text = name
     end
     
-    -- 3. Tracers (Beam)
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if root and not char:FindFirstChild("FeiwuBeamFolder") then
-        local beamFolder = Instance.new("Folder", char)
+    local root = model:FindFirstChild("HumanoidRootPart")
+    if root and not model:FindFirstChild("FeiwuBeamFolder") then
+        local beamFolder = Instance.new("Folder", model)
         beamFolder.Name = "FeiwuBeamFolder"
-        
         local att0 = Instance.new("Attachment", workspace.Terrain)
-        att0.Name = "TracerStart_" .. player.Name
-        
+        att0.Name = "TracerStart_" .. name
         local att1 = Instance.new("Attachment", root)
         
         local beam = Instance.new("Beam", beamFolder)
@@ -150,53 +148,61 @@ end
 
 -- 实时更新循环 (RenderStepped)
 local ESPConnection = RunService.RenderStepped:Connect(function()
-    if not ESP_Enabled then 
-        -- 如果关闭，隐藏或移除（这里选择不做处理，依赖 Toggle 回调清理）
-        return 
-    end
+    if not ESP_Enabled then return end
     
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= Players.LocalPlayer and player.Character then
-            local char = player.Character
-            local head = char:FindFirstChild("Head")
-            local root = char:FindFirstChild("HumanoidRootPart")
-            
-            -- 更新 Name Tag 距离
-            if head then
-                local bg = head:FindFirstChild("FeiwuNameTag")
-                if bg then
-                    local label = bg:FindFirstChild("TextLabel")
-                    if label and Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local dist = (Players.LocalPlayer.Character.HumanoidRootPart.Position - head.Position).Magnitude
-                        label.Text = string.format("%s\n[%.0f m]", player.Name, dist)
-                    end
+    local targets = {}
+    -- Add Players
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= Players.LocalPlayer and p.Character then
+            table.insert(targets, {model = p.Character, name = p.Name, isPlayer = true, playerObj = p})
+        end
+    end
+    -- Add NPCs (if enabled)
+    if ESP_NPC_Enabled then
+         for _, obj in ipairs(workspace:GetChildren()) do
+             if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and not Players:GetPlayerFromCharacter(obj) then
+                 table.insert(targets, {model = obj, name = obj.Name .. " [NPC]", isPlayer = false})
+             end
+         end
+    end
+
+    for _, t in ipairs(targets) do
+        local char = t.model
+        local head = char:FindFirstChild("Head")
+        local root = char:FindFirstChild("HumanoidRootPart")
+        
+        -- Ensure assets exist (Dynamic check)
+        CreateESPAssets(char, t.name)
+        
+        if head then
+            local bg = head:FindFirstChild("FeiwuNameTag")
+            if bg then
+                local label = bg:FindFirstChild("TextLabel")
+                if label and Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local dist = (Players.LocalPlayer.Character.HumanoidRootPart.Position - head.Position).Magnitude
+                    label.Text = string.format("%s\n[%.0f m]", t.name, dist)
                 end
             end
-            
-             -- Update Highlight Color (Target Lock)
-             local hl = char:FindFirstChild("FeiwuHighlight")
-             if hl then
-                 if player == getgenv().Aimbot_LockedPlayer then
-                     hl.FillColor = Color3.fromRGB(0, 255, 0) -- Green for Locked
-                     hl.OutlineColor = Color3.fromRGB(0, 255, 0)
-                 else
-                     hl.FillColor = Color3.fromRGB(255, 0, 0) -- Red for others
-                     hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                 end
-             end
-
-            -- 更新 Tracer 起点 (完美屏幕底边)
-            if root then
-                local bf = char:FindFirstChild("FeiwuBeamFolder")
-                if bf then
-                    local beam = bf:FindFirstChild("Beam")
-                    if beam and beam.Attachment0 then
-                         -- 使用 ViewportPointToRay 获取屏幕底边中心的射线
-                         -- ViewportSize.X/2 = 水平中心, ViewportSize.Y = 屏幕最底端
-                         local ray = Camera:ViewportPointToRay(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-                         -- 将起点设在摄像机前方稍远处，避免被近平面裁剪
-                         beam.Attachment0.WorldPosition = ray.Origin + (ray.Direction * 1)
-                    end
+        end
+        
+        local hl = char:FindFirstChild("FeiwuHighlight")
+        if hl then
+            if t.isPlayer and t.playerObj == getgenv().Aimbot_LockedPlayer then
+                hl.FillColor = Color3.fromRGB(0, 255, 0)
+                hl.OutlineColor = Color3.fromRGB(0, 255, 0)
+            else
+                hl.FillColor = Color3.fromRGB(255, 0, 0)
+                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+            end
+        end
+        
+        if root then
+            local bf = char:FindFirstChild("FeiwuBeamFolder")
+            if bf then
+                local beam = bf:FindFirstChild("Beam")
+                if beam and beam.Attachment0 then
+                    local ray = Camera:ViewportPointToRay(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                    beam.Attachment0.WorldPosition = ray.Origin + (ray.Direction * 1)
                 end
             end
         end
@@ -219,10 +225,7 @@ local function DisableESP()
             if hl then hl:Destroy() end
             local bf = player.Character:FindFirstChild("FeiwuBeamFolder")
             if bf then
-                -- 清理对应的 Terrain attachment
-                if bf:FindFirstChild("Beam") and bf.Beam.Attachment0 then
-                    bf.Beam.Attachment0:Destroy() 
-                end
+                if bf:FindFirstChild("Beam") and bf.Beam.Attachment0 then bf.Beam.Attachment0:Destroy() end
                 bf:Destroy() 
             end
             local head = player.Character:FindFirstChild("Head")
@@ -231,6 +234,19 @@ local function DisableESP()
                 if bg then bg:Destroy() end
             end
         end
+    end
+    -- Clean NPCs
+    for _, obj in ipairs(workspace:GetChildren()) do
+         if obj:IsA("Model") and obj:FindFirstChild("FeiwuHighlight") and not Players:GetPlayerFromCharacter(obj) then
+             obj.FeiwuHighlight:Destroy()
+             if obj:FindFirstChild("FeiwuBeamFolder") then 
+                  if obj.FeiwuBeamFolder:FindFirstChild("Beam") and obj.FeiwuBeamFolder.Beam.Attachment0 then
+                    obj.FeiwuBeamFolder.Beam.Attachment0:Destroy()
+                  end
+                  obj.FeiwuBeamFolder:Destroy() 
+             end
+             if obj:FindFirstChild("Head") and obj.Head:FindFirstChild("FeiwuNameTag") then obj.Head.FeiwuNameTag:Destroy() end
+         end
     end
 end
 
@@ -250,6 +266,33 @@ local ESPToggle = Tab2:CreateToggle({
     end,
 })
 
+Tab2:CreateToggle({
+    Name = "显示 NPC (非玩家)",
+    CurrentValue = false,
+    Flag = "NPCToggle",
+    Callback = function(Value)
+        ESP_NPC_Enabled = Value
+        if not Value then
+             -- Clean NPCs only
+             for _, obj in ipairs(workspace:GetChildren()) do
+                 if obj:IsA("Model") and obj:FindFirstChild("FeiwuHighlight") and not Players:GetPlayerFromCharacter(obj) then
+                     obj.FeiwuHighlight:Destroy()
+                     if obj:FindFirstChild("FeiwuBeamFolder") then 
+                        if obj.FeiwuBeamFolder:FindFirstChild("Beam") and obj.FeiwuBeamFolder.Beam.Attachment0 then
+                             obj.FeiwuBeamFolder.Beam.Attachment0:Destroy()
+                        end
+                        obj.FeiwuBeamFolder:Destroy() 
+                     end
+                     if obj:FindFirstChild("Head") and obj.Head:FindFirstChild("FeiwuNameTag") then obj.Head.FeiwuNameTag:Destroy() end
+                 end
+             end
+             SendNotification("NPC 透视", "已关闭")
+        else
+             SendNotification("NPC 透视", "已开启")
+        end
+    end,
+})
+
 -- 监听新玩家
 local PlayerAddedConn = Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(char)
@@ -265,7 +308,7 @@ for _, p in ipairs(Players:GetPlayers()) do
     p.CharacterAdded:Connect(function(char)
         if ESP_Enabled then
              task.wait(1)
-             CreateESPAssets(p)
+             CreateESPAssets(char, p.Name)
         end
     end)
 end
@@ -317,10 +360,14 @@ local function GetClosestPlayer()
                 local dist = (Vector2.new(pos.X, pos.Y) - mousePos).Magnitude
                 
                 if dist <= Aimbot_FOV_Size then
-                    if not Aimbot_WallCheck or IsVisible(head) then
-                        if dist < closestDist then
-                            closestDist = dist
-                            target = head
+                    -- Distance Check
+                    local charDist = (head.Position - Camera.CFrame.Position).Magnitude
+                    if charDist <= Aimbot_MaxDistance then
+                        if not Aimbot_WallCheck or IsVisible(head) then
+                            if dist < closestDist then
+                                closestDist = dist
+                                target = head
+                            end
                         end
                     end
                 end
@@ -401,6 +448,17 @@ Tab3:CreateSlider({
     Flag = "SmoothnessSlider",
     Callback = function(Value)
         Aimbot_Smoothness = Value / 10
+    end,
+})
+
+Tab3:CreateSlider({
+    Name = "自瞄最大距离",
+    Range = {10, 5000},
+    Increment = 50,
+    CurrentValue = 500,
+    Flag = "MaxDistSlider",
+    Callback = function(Value)
+        Aimbot_MaxDistance = Value
     end,
 })
 
@@ -507,5 +565,107 @@ Tab1:CreateToggle({
             table.insert(Connections, ijConn)
         end
         -- Note: Disconnecting specific toggle connections in cleanup system is complex, simplistic toggle off relies on debounce or logic check, but full cleanup handles re-execution
+    end,
+})
+
+-- Flight Feature Logic
+local FlightBodyGyro, FlightBodyVelocity
+local FlightRunServiceConn
+
+local function StartFly()
+    local char = Players.LocalPlayer.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local hum = char:FindFirstChild("Humanoid")
+    if not root or not hum then return end
+
+    -- Disable physics state
+    hum.PlatformStand = true
+    
+    FlightBodyGyro = Instance.new("BodyGyro")
+    FlightBodyGyro.P = 9e4
+    FlightBodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+    FlightBodyGyro.CFrame = root.CFrame
+    FlightBodyGyro.Parent = root
+    table.insert(Instances, FlightBodyGyro)
+
+    FlightBodyVelocity = Instance.new("BodyVelocity")
+    FlightBodyVelocity.Velocity = Vector3.zero
+    FlightBodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+    FlightBodyVelocity.Parent = root
+    table.insert(Instances, FlightBodyVelocity)
+
+    FlightRunServiceConn = RunService.RenderStepped:Connect(function()
+        if not Flight_Enabled or not char or not root then return end
+        
+        local cam = workspace.CurrentCamera
+        local moveDir = Vector3.zero
+        
+        -- WASD Logic relative to Camera
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+            moveDir = moveDir + cam.CFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+            moveDir = moveDir - cam.CFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+            moveDir = moveDir - cam.CFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+            moveDir = moveDir + cam.CFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            moveDir = moveDir + Vector3.new(0, 1, 0)
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+             moveDir = moveDir - Vector3.new(0, 1, 0)
+        end
+        
+        -- Normalize speed
+        if moveDir.Magnitude > 0 then
+            moveDir = moveDir.Unit * Flight_Speed
+        end
+        
+        FlightBodyVelocity.Velocity = moveDir
+        FlightBodyGyro.CFrame = cam.CFrame
+    end)
+    table.insert(Connections, FlightRunServiceConn)
+end
+
+local function StopFly()
+    if FlightRunServiceConn then FlightRunServiceConn:Disconnect() FlightRunServiceConn = nil end
+    if FlightBodyVelocity then FlightBodyVelocity:Destroy() FlightBodyVelocity = nil end
+    if FlightBodyGyro then FlightBodyGyro:Destroy() FlightBodyGyro = nil end
+    
+    if Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+        Players.LocalPlayer.Character.Humanoid.PlatformStand = false
+        Players.LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+    end
+end
+
+Tab1:CreateToggle({
+    Name = "飞行模式 (Flight)",
+    CurrentValue = false,
+    Flag = "FlyToggle",
+    Callback = function(Value)
+        Flight_Enabled = Value
+        if Value then
+            StartFly()
+            SendNotification("飞行模式", "已开启")
+        else
+            StopFly()
+            SendNotification("飞行模式", "已关闭")
+        end
+    end,
+})
+
+Tab1:CreateSlider({
+    Name = "飞行速度",
+    Range = {10, 500},
+    Increment = 1,
+    CurrentValue = 50,
+    Flag = "FlySpeedSlider",
+    Callback = function(Value)
+        Flight_Speed = Value
     end,
 })
