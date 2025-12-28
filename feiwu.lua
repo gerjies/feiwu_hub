@@ -82,8 +82,7 @@ local Aimbot_Smoothness = 1
 local Aimbot_MaxDistance = 500
 local Hitbox_Enabled = false
 local OriginalSizes = {}
-local Flight_Enabled = false
-local Flight_Speed = 50
+
 
 -- ======================== 视觉/ESP (Visuals) ========================
 local ESP_Holder = Instance.new("Folder", game.CoreGui)
@@ -568,104 +567,13 @@ Tab1:CreateToggle({
     end,
 })
 
--- Flight Feature Logic
-local FlightBodyGyro, FlightBodyVelocity
-local FlightRunServiceConn
+-- Flight Feature Logic (Removed in favor of remote loader)
 
-local function StartFly()
-    local char = Players.LocalPlayer.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    local hum = char:FindFirstChild("Humanoid")
-    if not root or not hum then return end
 
-    -- Disable physics state
-    hum.PlatformStand = true
-    
-    FlightBodyGyro = Instance.new("BodyGyro")
-    FlightBodyGyro.P = 9e4
-    FlightBodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-    FlightBodyGyro.CFrame = root.CFrame
-    FlightBodyGyro.Parent = root
-    table.insert(Instances, FlightBodyGyro)
-
-    FlightBodyVelocity = Instance.new("BodyVelocity")
-    FlightBodyVelocity.Velocity = Vector3.zero
-    FlightBodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-    FlightBodyVelocity.Parent = root
-    table.insert(Instances, FlightBodyVelocity)
-
-    FlightRunServiceConn = RunService.RenderStepped:Connect(function()
-        if not Flight_Enabled or not char or not root then return end
-        
-        local cam = workspace.CurrentCamera
-        local moveDir = Vector3.zero
-        
-        -- WASD Logic relative to Camera
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-            moveDir = moveDir + cam.CFrame.LookVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-            moveDir = moveDir - cam.CFrame.LookVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-            moveDir = moveDir - cam.CFrame.RightVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-            moveDir = moveDir + cam.CFrame.RightVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-            moveDir = moveDir + Vector3.new(0, 1, 0)
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-             moveDir = moveDir - Vector3.new(0, 1, 0)
-        end
-        
-        -- Normalize speed
-        if moveDir.Magnitude > 0 then
-            moveDir = moveDir.Unit * Flight_Speed
-        end
-        
-        FlightBodyVelocity.Velocity = moveDir
-        FlightBodyGyro.CFrame = cam.CFrame
-    end)
-    table.insert(Connections, FlightRunServiceConn)
-end
-
-local function StopFly()
-    if FlightRunServiceConn then FlightRunServiceConn:Disconnect() FlightRunServiceConn = nil end
-    if FlightBodyVelocity then FlightBodyVelocity:Destroy() FlightBodyVelocity = nil end
-    if FlightBodyGyro then FlightBodyGyro:Destroy() FlightBodyGyro = nil end
-    
-    if Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-        Players.LocalPlayer.Character.Humanoid.PlatformStand = false
-        Players.LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-    end
-end
-
-Tab1:CreateToggle({
-    Name = "飞行模式 (Flight)",
-    CurrentValue = false,
-    Flag = "FlyToggle",
-    Callback = function(Value)
-        Flight_Enabled = Value
-        if Value then
-            StartFly()
-            SendNotification("飞行模式", "已开启")
-        else
-            StopFly()
-            SendNotification("飞行模式", "已关闭")
-        end
-    end,
-})
-
-Tab1:CreateSlider({
-    Name = "飞行速度",
-    Range = {10, 500},
-    Increment = 1,
-    CurrentValue = 50,
-    Flag = "FlySpeedSlider",
-    Callback = function(Value)
-        Flight_Speed = Value
+Tab1:CreateButton({
+    Name = "启动飞行脚本 (Load Fly Script)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/gerjies/feiwu_hub/refs/heads/main/fly.lua"))();
+        SendNotification("系统提示", "飞行脚本已加载")
     end,
 })
